@@ -23,7 +23,7 @@ Handling Many-to-Many (M:N) relationships between questions and tags represents 
 
 ```mermaid
 graph TD
-    subgraph Iteration 3: Two-Pronged Architecture [ADOPTED]
+    subgraph S3 ["Iteration 3: Two-Pronged Architecture (ADOPTED)"]
         A3[stg_questions] -->|Distinct Combinations| B3[int_canonical_tags]
         B3 -->|1:1 Alphabetical Sort| C3[dim_question]
         A3 --> D3[fact_question]
@@ -32,13 +32,13 @@ graph TD
         G3 -.->|1:N| F3
     end
 
-    subgraph Iteration 2: Factless Fact Bridge
+    subgraph S2 ["Iteration 2: Factless Fact Bridge"]
         A2[dim_question] --> B2[fact_question_tag Bridge]
         C2[dim_tags] --> B2
         A2 --- D2[fact_question]
     end
 
-    subgraph Iteration 1: Group Dimension
+    subgraph S1 ["Iteration 1: Group Dimension"]
         A1[stg_questions] --> B1[int_question_tags]
         B1 --> C1[dim_group_tag]
         A1 --> D1[fact_questions]
@@ -126,6 +126,7 @@ erDiagram
     DIM_QUESTION ||--o{ FACT_COMMENTS : "1:N (question_id - Future)"
     DIM_QUESTION ||--o{ FACT_POST_EDITS : "1:N (question_id - Future)"
 
+
     DIM_QUESTION {
         int64 question_id PK
         string title
@@ -144,7 +145,7 @@ erDiagram
     }
 
     FACT_QUESTION {
-        int64 question_id PK_FK
+        int64 question_id PK
         timestamp creation_date
         int64 accepted_answer_id FK
         int64 score
@@ -153,6 +154,7 @@ erDiagram
         int64 comment_count
         int64 favorite_count
     }
+
 
     FACT_ANSWERS {
         int64 answer_id PK
