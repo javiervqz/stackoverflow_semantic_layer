@@ -6,12 +6,14 @@ with pre_select as (
 select 
     questions.question_id,
     questions.answer_count,
-    questions.has_accepted_answer,
-    group_tag.tag
-from {{ ref('fact_questions') }} as questions
-left join {{ ref('dim_group_tag') }} as group_tag
-    on questions.tags_group_id = group_tag.tags_group_id
--- where extract(year from questions.creation_date) = extract(year from current_date())
+    dim_questions.has_accepted_answer,
+    question_tags.tag_name as tag
+from {{ ref('fact_question') }} as questions
+left join {{ ref('dim_question') }} as dim_questions
+    on questions.question_id = dim_questions.question_id
+left join {{ ref('fact_question_tag') }} as question_tags
+    on dim_questions.question_id = question_tags.question_id
+-- where extract(year from dim_questions.creation_date) = extract(year from current_date())
 ),
 
 agg as (

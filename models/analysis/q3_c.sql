@@ -6,16 +6,18 @@ rather than causal drivers. #}
 
 with bucketed as (
     select
-        question_id,
-        answer_count,
-        has_accepted_answer,
-        comment_count,
-        score,
-        view_count,
-        ntile(10) over (order by comment_count) as comment_decile,
-        ntile(4) over (order by score) as score_decile,
-        ntile(10) over (order by view_count) as view_decile
-    from {{ ref('fact_questions') }}
+        questions.question_id,
+        questions.answer_count,
+        dim_questions.has_accepted_answer,
+        questions.comment_count,
+        questions.score,
+        questions.view_count,
+        ntile(10) over (order by questions.comment_count) as comment_decile,
+        ntile(4) over (order by questions.score) as score_decile,
+        ntile(10) over (order by questions.view_count) as view_decile
+    from {{ ref('fact_question') }} as questions
+    inner join {{ ref('dim_question') }} as dim_questions
+        on questions.question_id = dim_questions.question_id
 )
 
 select

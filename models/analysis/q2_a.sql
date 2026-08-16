@@ -5,13 +5,15 @@ with filtered_questions as (
     select 
         questions.question_id,
         questions.answer_count,
-        extract(year from questions.creation_date) as question_year
-    from {{ ref('fact_questions') }} as questions
-    inner join {{ ref('dim_group_tag') }} as group_tag
-        on questions.tags_group_id = group_tag.tags_group_id
-    where group_tag.count_tags = 1
-        and group_tag.tag in ('python', 'dbt')
-        and extract(year from questions.creation_date) >= extract(year from current_date()) - 9
+        extract(year from dim_questions.creation_date) as question_year
+    from {{ ref('fact_question') }} as questions
+    inner join {{ ref('dim_question') }} as dim_questions
+        on questions.question_id = dim_questions.question_id
+    inner join {{ ref('fact_question_tag') }} as question_tags
+        on dim_questions.question_id = question_tags.question_id
+    where dim_questions.tag_count = 1
+        and question_tags.tag_name in ('python', 'dbt')
+        and extract(year from dim_questions.creation_date) >= extract(year from current_date()) - 15
 ),
 
 yearly as (

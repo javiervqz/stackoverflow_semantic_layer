@@ -3,14 +3,16 @@ Analyzes body length and title length using decile bucketing. #}
 
 with bucketed as (
     select
-        question_id,
-        answer_count,
-        has_accepted_answer,
-        body_length,
-        title_length,
-        ntile(10) over (order by body_length) as body_length_decile,
-        ntile(10) over (order by title_length) as title_length_decile
-    from {{ ref('fact_questions') }}
+        questions.question_id,
+        questions.answer_count,
+        dim_questions.has_accepted_answer,
+        dim_questions.body_length,
+        dim_questions.title_length,
+        ntile(10) over (order by dim_questions.body_length) as body_length_decile,
+        ntile(10) over (order by dim_questions.title_length) as title_length_decile
+    from {{ ref('fact_question') }} as questions
+    inner join {{ ref('dim_question') }} as dim_questions
+        on questions.question_id = dim_questions.question_id
 )
 
 select

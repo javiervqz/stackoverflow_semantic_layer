@@ -1,0 +1,93 @@
+version: 2
+
+models:
+  - name: dim_question
+    description: "Conformed dimension for Stack Overflow question posts, containing descriptive attributes, metadata, and foreign keys."
+    columns:
+      - name: question_id
+        description: "Primary key. Unique identifier of the question."
+        tests:
+          - unique
+          - not_null
+      - name: title
+        description: "The title of the question."
+      - name: body_length
+        description: "Character length of the question body."
+      - name: title_length
+        description: "Character length of the question title."
+      - name: has_been_edited
+        description: "Boolean indicating whether the question post has been edited."
+      - name: tag_count
+        description: "Number of tags associated with the question."
+      - name: has_accepted_answer
+        description: "Boolean indicating whether the question has an accepted answer."
+      - name: creation_date
+        description: "Timestamp when the question was asked."
+        tests:
+          - not_null
+      - name: last_activity_date
+        description: "Timestamp of the last activity on the question."
+      - name: last_edit_date
+        description: "Timestamp of the last edit made to the question."
+      - name: owner_user_id
+        description: "Foreign key linking to the question author."
+      - name: accepted_answer_id
+        description: "Foreign key linking to the accepted answer post."
+      - name: tags_group_id
+        description: "Surrogate key for the set of tags on the question."
+
+  - name: fact_question
+    description: "Fact table containing measurable, additive and non-additive metrics for each Stack Overflow question."
+    columns:
+      - name: question_id
+        description: "Foreign key linking to dim_question."
+        tests:
+          - unique
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_question')
+                field: question_id
+      - name: score
+        description: "Net vote score of the question."
+      - name: view_count
+        description: "Number of views the question has received."
+      - name: answer_count
+        description: "Number of answers submitted for the question."
+      - name: comment_count
+        description: "Number of comments left on the question."
+      - name: favorite_count
+        description: "Number of times the question was favorited."
+
+  - name: fact_question_tag
+    description: "Factless fact / bridge table linking each question to its individual tags."
+    columns:
+      - name: question_id
+        description: "Foreign key linking to dim_question."
+        tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_question')
+                field: question_id
+      - name: tag_id
+        description: "Foreign key linking to dim_tags (if tag exists in tags metadata)."
+      - name: tag_name
+        description: "The name of the individual tag associated with the question."
+        tests:
+          - not_null
+
+  - name: dim_tags
+    description: "Dimension table containing tag metadata."
+    columns:
+      - name: tag_id
+        description: "Primary key. Unique identifier of the tag."
+        tests:
+          - unique
+          - not_null
+      - name: tag_name
+        description: "The text name of the tag."
+        tests:
+          - not_null
+      - name: tag_count
+        description: "Total number of questions using this tag."
