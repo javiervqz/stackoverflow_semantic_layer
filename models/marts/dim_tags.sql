@@ -5,10 +5,10 @@ with source as (
 renamed as (
     select 
         tag_id,
+        tag_name,
+        questions_count as tag_volume,
         excerpt_post_id,
-        wiki_post_id,
-        tag_name
-
+        wiki_post_id
     from source 
 )
 

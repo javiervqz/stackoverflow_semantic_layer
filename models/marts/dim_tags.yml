@@ -13,5 +13,19 @@ models:
         description: "The text name of the tag."
         tests:
           - not_null
-      - name: tag_count
-        description: "Total number of questions using this tag."
+      - name: tag_volume
+        description: "Total lifetime volume of questions using this tag."
+
+semantic_models:
+  - name: dim_tags
+    description: "Tag dimension containing tag metadata and volume."
+    model: ref('dim_tags')
+    entities:
+      - name: tag
+        type: primary
+        expr: tag_id
+    dimensions:
+      - name: tag_name
+        type: categorical
+      - name: tag_volume
+        type: categorical

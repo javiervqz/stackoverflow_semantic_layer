@@ -9,10 +9,8 @@ with filtered_questions as (
     from {{ ref('fact_question') }} as questions
     inner join {{ ref('dim_question') }} as dim_questions
         on questions.question_id = dim_questions.question_id
-    inner join {{ ref('fact_question_tag') }} as question_tags
-        on dim_questions.question_id = question_tags.question_id
     where dim_questions.tag_count = 1
-        and question_tags.tag_name in ('python', 'dbt')
+        and dim_questions.tags_group in ('python', 'dbt')
         and extract(year from dim_questions.creation_date) >= extract(year from current_date()) - 15
 ),
 

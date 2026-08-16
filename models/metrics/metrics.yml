@@ -2,35 +2,97 @@ version: 2
 
 metrics:
   # =========================================================================
+  # Simple Metrics (Wrapping measures from fact_question)
+  # =========================================================================
+  - name: total_questions
+    description: "Total number of unique Stack Overflow questions asked."
+    label: "Total Questions"
+    type: simple
+    type_params:
+      measure: total_questions
+
+  - name: total_answers
+    description: "Total number of answers posted across all questions."
+    label: "Total Answers"
+    type: simple
+    type_params:
+      measure: total_answers
+
+  - name: questions_with_accepted_answer
+    description: "Count of questions that have an accepted (approved) answer."
+    label: "Questions with Accepted Answer"
+    type: simple
+    type_params:
+      measure: questions_with_accepted_answer
+
+  - name: questions_with_answers
+    description: "Count of questions that have received at least one answer."
+    label: "Questions with Answers"
+    type: simple
+    type_params:
+      measure: questions_with_answers
+
+  - name: total_views
+    description: "Total number of views accumulated across questions."
+    label: "Total Views"
+    type: simple
+    type_params:
+      measure: total_views
+
+  - name: total_comments
+    description: "Total number of comments left on questions."
+    label: "Total Comments"
+    type: simple
+    type_params:
+      measure: total_comments
+
+  - name: total_score
+    description: "Sum of net vote scores across questions."
+    label: "Total Score"
+    type: simple
+    type_params:
+      measure: total_score
+
+  - name: total_favorites
+    description: "Total number of favorites received across questions."
+    label: "Total Favorites"
+    type: simple
+    type_params:
+      measure: total_favorites
+  # =========================================================================
   # Ratio Metrics (Benchmark for Q1, Q2, Q3)
   # =========================================================================
   - name: acceptance_rate
     description: "Rate of questions with an accepted answer over total questions asked (Q1, Q2_b, Q2_c, Q3)."
     label: "Answer Acceptance Rate"
     type: ratio
-    numerator: questions_with_accepted_answer
-    denominator: total_questions
+    type_params:
+      numerator: questions_with_accepted_answer
+      denominator: total_questions
 
   - name: question_to_answer_ratio
     description: "Ratio of total answers per question asked (Q2_a, Q2_c)."
     label: "Question-to-Answer Ratio"
     type: ratio
-    numerator: total_answers
-    denominator: total_questions
+    type_params:
+      numerator: total_answers
+      denominator: total_questions
 
   - name: avg_answers_per_question
     description: "Average number of answers received per question (Q3_a, Q3_b, Q3_c)."
     label: "Average Answers per Question"
     type: ratio
-    numerator: total_answers
-    denominator: total_questions
+    type_params:
+      numerator: total_answers
+      denominator: total_questions
 
   - name: answer_rate
     description: "Proportion of questions that received at least one answer (Q3_a, Q3_b, Q3_c)."
     label: "Answer Rate"
     type: ratio
-    numerator: questions_with_answers
-    denominator: total_questions
+    type_params:
+      numerator: questions_with_answers
+      denominator: total_questions
 
   # =========================================================================
   # Engagement & Quality Metrics (Benchmark for Q3)
@@ -39,36 +101,62 @@ metrics:
     description: "Average views per question asked."
     label: "Average Views per Question"
     type: ratio
-    numerator: total_views
-    denominator: total_questions
+    type_params:
+      numerator: total_views
+      denominator: total_questions
 
   - name: avg_comments_per_question
     description: "Average comments per question asked."
     label: "Average Comments per Question"
     type: ratio
-    numerator: total_comments
-    denominator: total_questions
+    type_params:
+      numerator: total_comments
+      denominator: total_questions
 
   - name: avg_score_per_question
     description: "Average net score per question asked."
     label: "Average Score per Question"
     type: ratio
-    numerator: total_score
-    denominator: total_questions
+    type_params:
+      numerator: total_score
+      denominator: total_questions
 
   # =========================================================================
-  # Tag Grain Metrics (Benchmark for Q1 & Q2 Tag Slicing)
+  # Tag Aggregate Metrics (Fact Tag Daily - Q1_A & Tag Slicing)
   # =========================================================================
+  - name: tag_total_questions
+    description: "Total questions asked for a tag (derived from fact_tag_daily)."
+    label: "Tag Total Questions"
+    type: simple
+    type_params:
+      measure: tag_total_questions
+
+  - name: tag_total_answers
+    description: "Total answers received on questions for a tag."
+    label: "Tag Total Answers"
+    type: simple
+    type_params:
+      measure: tag_total_answers
+
+  - name: tag_questions_with_accepted_answer
+    description: "Total questions with an accepted answer for a tag."
+    label: "Tag Questions with Accepted Answer"
+    type: simple
+    type_params:
+      measure: tag_questions_with_accepted_answer
+
   - name: tag_acceptance_rate
-    description: "Acceptance rate for questions with a specific tag (Q1 benchmark)."
+    description: "Acceptance rate for questions associated with a specific tag (Q1_A benchmark)."
     label: "Tag Acceptance Rate"
     type: ratio
-    numerator: tag_accepted_answers
-    denominator: tag_questions
+    type_params:
+      numerator: tag_questions_with_accepted_answer
+      denominator: tag_total_questions
 
   - name: tag_question_to_answer_ratio
-    description: "Answers per question for questions with a specific tag (Q2 benchmark)."
-    label: "Tag Question-to-Answer Ratio"
+    description: "Average answers per question for a specific tag."
+    label: "Tag Question to Answer Ratio"
     type: ratio
-    numerator: tag_answers
-    denominator: tag_questions
+    type_params:
+      numerator: tag_total_answers
+      denominator: tag_total_questions

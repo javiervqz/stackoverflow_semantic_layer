@@ -3,73 +3,80 @@ version: 2
 models:
   - name: dim_question
     description: "Conformed dimension for Stack Overflow question posts, containing descriptive attributes, metadata, and foreign keys."
-    semantic_model:
-      enabled: true
     columns:
       - name: question_id
         description: "Primary key. Unique identifier of the question."
-        entity:
-          name: question
-          type: primary
         tests:
           - unique
           - not_null
       - name: title
         description: "The title of the question."
-        dimension:
-          type: categorical
       - name: body_length
         description: "Character length of the question body."
-        dimension:
-          type: categorical
       - name: title_length
         description: "Character length of the question title."
-        dimension:
-          type: categorical
       - name: has_been_edited
         description: "Boolean indicating whether the question post has been edited."
-        dimension:
-          type: categorical
       - name: tag_count
         description: "Number of tags associated with the question."
-        dimension:
-          type: categorical
       - name: tags_group
         description: "Pipe-delimited string of all tags associated with the question post."
-        dimension:
-          type: categorical
       - name: tag_combination
         description: "Alias for tags_group representing the question's tag combination."
-        dimension:
-          type: categorical
       - name: tag_combination_volume
         description: "Total count of questions sharing this exact tag combination."
-        dimension:
-          type: categorical
       - name: has_accepted_answer
         description: "Boolean indicating whether the question has an accepted answer."
-        dimension:
-          type: categorical
       - name: creation_date
         description: "Timestamp when the question was asked."
         tests:
           - not_null
       - name: last_activity_date
         description: "Timestamp of the last activity on the question."
-        granularity: day
-        dimension:
-          type: time
       - name: last_edit_date
         description: "Timestamp of the last edit made to the question."
-        granularity: day
-        dimension:
-          type: time
       - name: owner_user_id
         description: "Foreign key linking to the question author."
-        entity:
-          name: user
-          type: foreign
       - name: accepted_answer_id
         description: "Foreign key linking to the accepted answer post."
       - name: tags_group_id
         description: "Surrogate key for the set of tags on the question."
+
+semantic_models:
+  - name: dim_question
+    description: "Conformed dimension semantic model for Stack Overflow question posts."
+    model: ref('dim_question')
+    entities:
+      - name: question
+        type: primary
+        expr: question_id
+      - name: user
+        type: foreign
+        expr: owner_user_id
+    dimensions:
+      - name: last_activity_date
+        type: time
+        type_params:
+          time_granularity: day
+      - name: last_edit_date
+        type: time
+        type_params:
+          time_granularity: day
+      - name: title
+        type: categorical
+      - name: body_length
+        type: categorical
+      - name: title_length
+        type: categorical
+      - name: has_been_edited
+        type: categorical
+      - name: tag_count
+        type: categorical
+      - name: tags_group
+        type: categorical
+      - name: tag_combination
+        type: categorical
+      - name: tag_combination_volume
+        type: categorical
+      - name: has_accepted_answer
+        type: categorical

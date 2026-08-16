@@ -1,0 +1,98 @@
+version: 2
+
+models:
+  - name: fact_tag_daily
+    description: "Periodic aggregate fact table summarizing Stack Overflow question metrics at the (tag_name, daily) grain."
+    columns:
+      - name: tag_daily_id
+        description: "Primary key. Surrogate key generated from tag_name and date_day."
+        tests:
+          - unique
+          - not_null
+      - name: tag_id
+        description: "Foreign key linking to dim_tags."
+      - name: tag_name
+        description: "Name of the tag."
+        tests:
+          - not_null
+      - name: date_day
+        description: "The calendar date of question creation."
+        tests:
+          - not_null
+      - name: total_questions
+        description: "Count of questions asked for this tag on this day."
+      - name: total_answers
+        description: "Count of answers received for questions asked on this day."
+      - name: questions_with_accepted_answer
+        description: "Count of questions with an accepted answer."
+      - name: questions_with_answers
+        description: "Count of questions that received at least one answer."
+      - name: total_views
+        description: "Total views on questions for this tag on this day."
+      - name: total_comments
+        description: "Total comments on questions for this tag on this day."
+      - name: total_score
+        description: "Total score of questions for this tag on this day."
+      - name: total_favorites
+        description: "Total favorites on questions for this tag on this day."
+
+semantic_models:
+  - name: fact_tag_daily
+    description: "Daily aggregate fact semantic model for tag-level metrics and time-series analysis."
+    model: ref('fact_tag_daily')
+    defaults:
+      agg_time_dimension: date_day
+    entities:
+      - name: tag_daily
+        type: primary
+        expr: tag_daily_id
+      - name: tag
+        type: foreign
+        expr: tag_id
+    dimensions:
+      - name: tag_name
+        type: categorical
+      - name: date_day
+        type: time
+        type_params:
+          time_granularity: day
+    measures:
+      - name: tag_total_questions
+        description: "Total questions associated with this tag."
+        agg: sum
+        expr: total_questions
+
+      - name: tag_total_answers
+        description: "Total answers received on questions with this tag."
+        agg: sum
+        expr: total_answers
+
+      - name: tag_questions_with_accepted_answer
+        description: "Total questions with an accepted answer for this tag."
+        agg: sum
+        expr: questions_with_accepted_answer
+
+      - name: tag_questions_with_answers
+        description: "Total questions with at least one answer for this tag."
+        agg: sum
+        expr: questions_with_answers
+
+      - name: tag_total_views
+        description: "Total views on questions for this tag."
+        agg: sum
+        expr: total_views
+
+      - name: tag_total_comments
+        description: "Total comments on questions for this tag."
+        agg: sum
+        expr: total_comments
+
+      - name: tag_total_score
+        description: "Total score on questions for this tag."
+        agg: sum
+        expr: total_score
+
+      - name: tag_total_favorites
+        description: "Total favorites on questions for this tag."
+        agg: sum
+        expr: total_favorites
