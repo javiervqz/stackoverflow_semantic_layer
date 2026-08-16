@@ -3,9 +3,15 @@ version: 2
 models:
   - name: fact_question
     description: "Fact table containing measurable, additive and non-additive metrics for each Stack Overflow question."
+    semantic_model:
+      enabled: true
+    agg_time_dimension: creation_date
     columns:
       - name: question_id
         description: "Foreign key linking to dim_question."
+        entity:
+          name: question
+          type: primary
         tests:
           - unique
           - not_null
@@ -15,6 +21,9 @@ models:
                 field: question_id
       - name: creation_date
         description: "Timestamp when the question was asked."
+        granularity: day
+        dimension:
+          type: time
         tests:
           - not_null
       - name: accepted_answer_id
@@ -29,3 +38,59 @@ models:
         description: "Number of comments left on the question."
       - name: favorite_count
         description: "Number of times the question was favorited."
+    metrics:
+      - name: total_questions
+        description: "Total number of unique Stack Overflow questions asked."
+        label: "Total Questions"
+        type: simple
+        agg: count_distinct
+        expr: question_id
+
+      - name: total_answers
+        description: "Total number of answers posted across all questions."
+        label: "Total Answers"
+        type: simple
+        agg: sum
+        expr: answer_count
+
+      - name: questions_with_accepted_answer
+        description: "Count of questions that have an accepted (approved) answer."
+        label: "Questions with Accepted Answer"
+        type: simple
+        agg: sum
+        expr: case when accepted_answer_id is not null then 1 else 0 end
+
+      - name: questions_with_answers
+        description: "Count of questions that have received at least one answer."
+        label: "Questions with Answers"
+        type: simple
+        agg: sum
+        expr: case when answer_count > 0 then 1 else 0 end
+
+      - name: total_views
+        description: "Total number of views accumulated across questions."
+        label: "Total Views"
+        type: simple
+        agg: sum
+        expr: view_count
+
+      - name: total_comments
+        description: "Total number of comments left on questions."
+        label: "Total Comments"
+        type: simple
+        agg: sum
+        expr: comment_count
+
+      - name: total_score
+        description: "Sum of net vote scores across questions."
+        label: "Total Score"
+        type: simple
+        agg: sum
+        expr: score
+
+      - name: total_favorites
+        description: "Total number of favorites received across questions."
+        label: "Total Favorites"
+        type: simple
+        agg: sum
+        expr: favorite_count
