@@ -22,7 +22,11 @@ renamed as (
         score,
         tags,
         {{ dbt_utils.generate_surrogate_key(['tags']) }} as tags_group_id,
-        view_count
+        view_count,
+        length(body) as body_length,
+        length(title) as title_length,
+        last_edit_date is not null as has_been_edited,
+        array_length(split(tags, '|')) as tag_count
 
     from source
 

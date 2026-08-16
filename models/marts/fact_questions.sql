@@ -23,9 +23,13 @@ renamed as (
         last_edit_date,
         --facts
         score,
-        view_count
+        view_count,
         answer_count,
         comment_count,
+        body_length,
+        title_length,
+        has_been_edited,
+        tag_count,
 
     from source
 
