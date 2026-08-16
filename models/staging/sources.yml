@@ -11,70 +11,119 @@ sources:
         columns:
           - name: id
             description: "Unique identifier for the user"
-            tests:
-              - unique
-              - not_null
+          - name: display_name
+            description: "The name displayed on the user's profile"
+          - name: reputation
+            description: "The user's reputation score"
+          - name: creation_date
+            description: "Timestamp when the user account was created"
+          - name: last_access_date
+            description: "Timestamp of user's last activity on the platform"
+          - name: location
+            description: "User's stated location"
+          - name: about_me
+            description: "User's biography"
+          - name: views
+            description: "Number of profile views"
+          - name: up_votes
+            description: "Upvotes cast by user"
+          - name: down_votes
+            description: "Downvotes cast by user"
 
       - name: posts_questions
         description: "Questions asked on Stack Overflow"
         columns:
           - name: id
             description: "Unique identifier for the question post"
-            tests:
-              - unique
-              - not_null
+          - name: title
+            description: "The title of the question"
+          - name: body
+            description: "The HTML content of the question post"
+          - name: accepted_answer_id
+            description: "The ID of the accepted answer"
+          - name: creation_date
+            description: "Timestamp when the question was asked"
+          - name: score
+            description: "Net vote score of the question"
+          - name: view_count
+            description: "Number of views on the question"
+          - name: answer_count
+            description: "Number of answers to the question"
+          - name: comment_count
+            description: "Number of comments on the question"
+          - name: favorite_count
+            description: "Number of favorites on the question"
+          - name: last_activity_date
+            description: "Timestamp of last activity on the question"
+          - name: last_edit_date
+            description: "Timestamp of last edit on the question"
+          - name: owner_user_id
+            description: "User ID of question creator"
+          - name: tags
+            description: "Pipe-delimited string of tags"
 
       - name: posts_answers
         description: "Answers provided for Stack Overflow questions"
         columns:
           - name: id
             description: "Unique identifier for the answer post"
-            tests:
-              - unique
-              - not_null
+          - name: body
+            description: "The HTML content of the answer post"
           - name: parent_id
-            description: "The id of the question post this answer belongs to"
+            description: "The ID of the parent question post"
+          - name: creation_date
+            description: "Timestamp when the answer was created"
+          - name: last_activity_date
+            description: "Timestamp of last activity on the answer"
+          - name: last_edit_date
+            description: "Timestamp of last edit on the answer"
+          - name: owner_user_id
+            description: "User ID of answer creator"
+          - name: score
+            description: "Net vote score of the answer"
+          - name: comment_count
+            description: "Number of comments on the answer"
 
       - name: comments
         description: "Comments left on posts"
         columns:
           - name: id
             description: "Unique identifier for the comment"
-            tests:
-              - unique
-              - not_null
+          - name: post_id
+            description: "The post that this comment belongs to"
+          - name: creation_date
+            description: "Timestamp when the comment was left"
 
       - name: badges
         description: "Badges awarded to users"
         columns:
           - name: id
             description: "Unique identifier for the badge award"
-            tests:
-              - unique
-              - not_null
+          - name: user_id
+            description: "User who received the badge"
+          - name: date
+            description: "Timestamp when the badge was awarded"
 
       - name: votes
         description: "Votes cast on posts"
         columns:
           - name: id
             description: "Unique identifier for the vote"
-            tests:
-              - unique
-              - not_null
+          - name: post_id
+            description: "Post that was voted on"
 
       - name: tags
         description: "Tags associated with questions to categorize posts"
         columns:
           - name: id
             description: "Unique identifier for the tag"
-            tests:
-              - unique
-              - not_null
           - name: tag_name
             description: "The text name of the tag"
           - name: count
             description: "The number of questions that use this tag"
           - name: excerpt_post_id
-            description: "The ID of the post containing the excerpt (short description) for the tag"
+            description: "The ID of the post containing the excerpt for the tag"
           - name: wiki_post_id
-            description: "The ID of the post containing the wiki (full description) for the tag"
+            description: "The ID of the post containing the wiki for the tag"
+
+

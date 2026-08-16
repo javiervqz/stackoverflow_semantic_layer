@@ -3,34 +3,78 @@ version: 2
 models:
   - name: dim_question
     description: "Conformed dimension for Stack Overflow question posts, containing descriptive attributes, metadata, and foreign keys."
+    tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "(accepted_answer_id is null and not has_accepted_answer) or (accepted_answer_id is not null and has_accepted_answer)"
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "(last_edit_date is null and not has_been_edited) or (last_edit_date is not null and has_been_edited)"
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "tag_combination = tags_group"
     columns:
       - name: question_id
         description: "Primary key. Unique identifier of the question."
         tests:
           - unique
           - not_null
+          - relationships:
+              arguments:
+                to: ref('fact_question')
+                field: question_id
+
       - name: title
         description: "The title of the question."
+        tests:
+          - not_null
       - name: body_length
         description: "Character length of the question body."
       - name: title_length
         description: "Character length of the question title."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 1
       - name: has_been_edited
         description: "Boolean indicating whether the question post has been edited."
+        tests:
+          - not_null
       - name: tag_count
         description: "Number of tags associated with the question."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 1
+
       - name: tags_group
         description: "Pipe-delimited string of all tags associated with the question post."
+        tests:
+          - not_null
       - name: tag_combination
         description: "Alias for tags_group representing the question's tag combination."
+        tests:
+          - not_null
       - name: tag_combination_volume
         description: "Total count of questions sharing this exact tag combination."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 1
       - name: has_accepted_answer
         description: "Boolean indicating whether the question has an accepted answer."
+        tests:
+          - not_null
       - name: creation_date
         description: "Timestamp when the question was asked."
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: "'2008-01-01'"
       - name: last_activity_date
         description: "Timestamp of the last activity on the question."
       - name: last_edit_date
@@ -41,6 +85,8 @@ models:
         description: "Foreign key linking to the accepted answer post."
       - name: tags_group_id
         description: "Surrogate key for the set of tags on the question."
+        tests:
+          - not_null
 
 semantic_models:
   - name: dim_question

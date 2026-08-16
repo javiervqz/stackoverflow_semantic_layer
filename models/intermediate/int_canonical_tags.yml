@@ -3,6 +3,10 @@ version: 2
 models:
   - name: int_canonical_tags
     description: "Intermediate model that extracts distinct raw tag combinations from question posts, sorts the constituent tags alphabetically to create deterministic canonical tag groups, and assigns surrogate keys."
+    tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "tag_combination = tags_group"
     columns:
       - name: raw_tags
         description: "Primary key. Distinct raw pipe-delimited string of tags from staging."
@@ -13,8 +17,13 @@ models:
         description: "Canonical pipe-delimited string of tags sorted alphabetically."
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_match_regex:
+              arguments:
+                regex: '^[^|]+(\\|[^|]+)*$'
       - name: tag_combination
         description: "Alias for tags_group representing the canonical tag combination."
+        tests:
+          - not_null
       - name: tags_group_id
         description: "Surrogate key for the canonical set of tags."
         tests:
@@ -23,3 +32,5 @@ models:
         description: "Timestamp of the latest question created with this tag combination."
       - name: last_edit_date
         description: "Timestamp of the latest edit to a question with this tag combination."
+
+

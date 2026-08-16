@@ -5,13 +5,14 @@ This repository contains the enterprise **dbt** transformation pipeline, **Metri
 
 ---
 
-## Executive Summary: Business Prompts & Results
+##  Summary: Business Questions & Results
 
-### Prompt 1: Tag & Tag Combination Performance
-> **Prompt**: *What tags on a Stack Overflow question lead to the most answers and the highest rate of approved answers? What tags lead to the least? How about combinations of tags?*
+### Question 1: Tag & Tag Combination Performance
+> *What tags on a Stack Overflow question lead to the most answers and the highest rate of approved answers? What tags lead to the least? How about combinations of tags?*
 
 #### 1. Individual Tag Performance ([`models/analysis/q1_a.sql`](./models/analysis/q1_a.sql))
 * **Highest Acceptance Rate Tags** (`volume > 10,000`):
+    * Selected a tag_volume of over 10000 questions to avoid high acceptance rate on niche topics like `2048` 
   * **Top**: `f#` (**73.44%**), `clojure` (**71.65%**), `awk` (**71.44%**), `dplyr` (**71.08%**), and `functional-programming` (**70.82%**). Functional languages and specialized tooling yield higher answer acceptance rates due to clear, deterministic problem definitions.
   * **Lowest Acceptance Rate Tags**: Broad/framework tags (e.g., `android`, `ios`, `react-native`) suffer lower acceptance rates (~40-45%) due to platform fragmentation and ambiguous configuration issues.
 * **MetricFlow CLI Command**:
@@ -53,8 +54,8 @@ This repository contains the enterprise **dbt** transformation pipeline, **Metri
 
 ---
 
-### Prompt 2: Year-over-Year Comparative Analysis (`python` vs `dbt`)
-> **Prompt**: *For posts which are tagged with only ‘python’ or ‘dbt’, what is the year over year change of question-to-answer ratio for the last 10 years? How about the rate of approved answers? How do posts tagged with only ‘python’ compare to posts only tagged with ‘dbt’?*
+### Question 2: Year-over-Year Comparative Analysis (`python` vs `dbt`)
+> *For posts which are tagged with only ‘python’ or ‘dbt’, what is the year over year change of question-to-answer ratio for the last 10 years? How about the rate of approved answers? How do posts tagged with only ‘python’ compare to posts only tagged with ‘dbt’?*
 
 #### Key Takeaways ([`models/analysis/q2_a.sql`](./models/analysis/q2_a.sql), [`q2_b.sql`](./models/analysis/q2_b.sql), [`q2_c.sql`](./models/analysis/q2_c.sql))
 * **Question-to-Answer Ratio Trend**:
@@ -89,8 +90,8 @@ This repository contains the enterprise **dbt** transformation pipeline, **Metri
 
 ---
 
-### Prompt 3: Post Qualities & Engagement Correlations
-> **Prompt**: *Other than tags, what qualities on a post correlate with the highest rate of answer and approved answer?*
+### Question 3: Post Qualities & Engagement Correlations
+>  *Other than tags, what qualities on a post correlate with the highest rate of answer and approved answer?*
 
 #### Key Findings ([`models/analysis/q3_a.sql`](./models/analysis/q3_a.sql), [`q3_b.sql`](./models/analysis/q3_b.sql), [`q3_c.sql`](./models/analysis/q3_c.sql))
 1. **Conciseness Outperforms Verbosity (Content Length Deciles)**:
@@ -173,7 +174,7 @@ erDiagram
 
 ---
 
-## 3. Kimball Enterprise Bus Matrix (Bizmatrix)
+## 3. Kimball Enterprise Bus Matrix
 
 The Bus Matrix maps the business processes (Fact Tables) against conformed dimensions to ensure architectural consistency across all analytical marts and Semantic Layer queries.
 
@@ -204,6 +205,8 @@ By extracting distinct tag combinations into an intermediate layer ([`int_canoni
 
 ## 5. Technical Approach, Performance & Cost Considerations
 
+See `#TRADEOFFS.md` for more detail view into architectural decisions tried
+
 1. **BigQuery Slot & Scan Optimization**:
    - `int_canonical_tags` computes alphabetical sorting only over the **8.45M distinct combinations** rather than the full 23M rows, eliminating over 14.5 million redundant string unnest/sort operations.
    - Aggregate fact mart [`fact_tag_daily`](./models/marts/fact_tag_daily.sql) provides pre-aggregated day-level numbers, reducing BigQuery bytes scanned by **>90%** for tag-level queries compared to unnesting the base 23M table on every ad-hoc query.
@@ -211,31 +214,32 @@ By extracting distinct tag combinations into an intermediate layer ([`int_canoni
    - Additive measures are strictly preserved on base fact tables (`fact_question`), while tag-level measures are isolated in periodic snapshot marts (`fact_tag_daily`).
    - Pure 1-to-1 and Many-to-1 join structures prevent multi-tag fan-out overstatements.
 3. **Data Quality & Testing**:
-   - 45 automated dbt data tests validating `unique`, `not_null`, and `relationships` integrity across all surrogate keys and foreign entities.
+   Automated testing suite applied across models to ensure warehouse reliability, boundary enforcement, and cross-grain reconciliation:
 
----
+   * **Schema & Key Integrity (`unique`, `not_null`)**:
+     - Enforces uniqueness and non-nullability across all primary keys (`question_id`, `answer_id`, `user_id`, `tag_id`, `raw_tags`) and surrogate keys (`tags_group_id`, `tag_daily_id`).
+   * **Bidirectional Referential Integrity & Grain Parity (`relationships`, `dbt_utils.equal_rowcount`)**:
+     - [`dim_question`](./models/marts/dim_question.yml) $\leftrightarrow$ [`fact_question`](./models/marts/fact_question.yml): Enforces strict 1:1 rowcount and question ID parity with zero orphaned rows.
+     - [`stg_stackoverflow_posts_answers`](./models/staging/stg_stackoverflow_posts_answers.yml) $\rightarrow$ [`stg_stackoverflow_posts_questions`](./models/staging/stg_stackoverflow_posts_questions.yml): Validates parent-child question linkage.
+     - `owner_user_id` $\rightarrow$ [`stg_stackoverflow_users`](./models/staging/stg_stackoverflow_users.yml): Validates author keys (configured with `severity: warn` for deleted accounts).
+   * **Boundary & Range Expectations (`dbt_expectations.expect_column_values_to_be_between`)**:
+     - `tag_count` $\ge 1$: Enforces that every question post contains at least 1 valid tag.
+     - `title_length` $\ge 1$: Prevents empty question titles.
+     - `reputation` $\ge 1$: Enforces Stack Overflow baseline user reputation.
+     - `views`, `up_votes`, `down_votes`, `comment_count`, `answer_count`, `favorite_count` $\ge 0$: Guards against negative physical counts.
+     - `date_day` / `creation_date` $\ge \text{'2008-01-01'}$: Validates historical date boundaries.
 
-## 6. Repository Structure
 
-```text
-├── models/
-│   ├── staging/           # Raw BigQuery extract cleansing & type casting
-│   │   ├── stg_stackoverflow_posts_questions.sql
-│   │   ├── stg_stackoverflow_posts_answers.sql
-│   │   └── stg_stackoverflow_tags.sql
-│   ├── intermediate/      # Canonical tag sorting & permutation deduplication
-│   │   └── int_canonical_tags.sql
-│   ├── marts/             # Core Star Schema (Facts, Dimensions & Aggregate Marts)
-│   │   ├── fact_question.sql / .yml
-│   │   ├── fact_tag_daily.sql / .yml
-│   │   ├── dim_question.sql / .yml
-│   │   └── dim_tags.sql / .yml
-│   ├── metrics/           # MetricFlow semantic layer definition
-│   │   └── metrics.yml
-│   └── analysis/          # Reference business analysis SQL models (Q1, Q2, Q3)
-│       ├── q1_a.sql, q1_b.sql
-│       ├── q2_a.sql, q2_b.sql, q2_c.sql
-│       └── q3_a.sql, q3_b.sql, q3_c.sql
-├── METRICFLOW_BENCHMARKS.md
-└── README.md
-```
+   * **String Formatting & Regex Standards (`dbt_expectations.expect_column_values_to_match_regex`)**:
+     - `tag_name`: Matches lowercase alphanumeric naming pattern (`^[a-z0-9+#.-]+$`).
+     - `tags_group`: Validates pipe-delimited syntax (`^[^|]+(\\|[^|]+)*$`) without leading, trailing, or double pipes.
+   * **Logical Invariant Expressions (`dbt_utils.expression_is_true`)**:
+     - Post acceptance synchronization: `(accepted_answer_id is null and not has_accepted_answer) or (accepted_answer_id is not null and has_accepted_answer)`.
+     - Post edit synchronization: `(last_edit_date is null and not has_been_edited) or (last_edit_date is not null and has_been_edited)`.
+     - Tag daily measure subsets: `questions_with_accepted_answer <= total_questions`, `questions_with_answers <= total_questions`, and `total_answers >= questions_with_answers`.
+     - Canonical alias consistency: `tag_combination = tags_group`.
+   * **Composite Key Uniqueness (`dbt_utils.unique_combination_of_columns`)**:
+     - Enforces exactly 1 row per `(tag_name, date_day)` grain in [`fact_tag_daily`](./models/marts/fact_tag_daily.yml).
+   * **Singular Acceptance & Reconciliation Tests ([`tests/`](./tests/))**:
+     - [`assert_single_tag_question_volume_reconciliation.sql`](./tests/assert_single_tag_question_volume_reconciliation.sql): Cross-grain reconciliation validating that aggregate tag volume matches atomic single-tag questions.
+     - [`assert_canonical_tag_ordering.sql`](./tests/assert_canonical_tag_ordering.sql): Normalization idempotency test validating that tags are strictly sorted in ascending alphabetical order.

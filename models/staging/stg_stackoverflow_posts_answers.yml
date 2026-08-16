@@ -11,19 +11,38 @@ models:
           - not_null
       - name: body
         description: "The body content of the answer (in HTML)."
+
       - name: comment_count
         description: "The number of comments this answer has received."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
       - name: creation_date
         description: "The timestamp when the answer was created."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: "'2008-01-01'"
       - name: last_activity_date
         description: "The timestamp of the last activity on the answer."
       - name: last_edit_date
         description: "The timestamp of the last edit made to the answer."
       - name: owner_user_id
         description: "Foreign key. The user ID of the answer's creator."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('stg_stackoverflow_users')
+                field: user_id
+              config:
+                severity: warn
       - name: question_id
         description: "Foreign key. The ID of the question post this answer responds to."
         tests:
+          - not_null
           - relationships:
               arguments:
                 to: ref('stg_stackoverflow_posts_questions')
@@ -32,3 +51,7 @@ models:
                 severity: warn
       - name: score
         description: "The net vote score of the answer (upvotes minus downvotes)."
+        tests:
+          - not_null
+
+

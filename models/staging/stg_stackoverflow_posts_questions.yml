@@ -3,6 +3,13 @@ version: 2
 models:
   - name: stg_stackoverflow_posts_questions
     description: "Staged Stack Overflow question posts. Relabeled columns and selected key attributes."
+    tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "(accepted_answer_id is null and not has_accepted_answer) or (accepted_answer_id is not null and has_accepted_answer)"
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "(last_edit_date is null and not has_been_edited) or (last_edit_date is not null and has_been_edited)"
     columns:
       - name: question_id
         description: "Primary key. Unique identifier of the question."
@@ -11,24 +18,51 @@ models:
           - not_null
       - name: title
         description: "The title of the question."
+        tests:
+          - not_null
       - name: body
         description: "The body content of the question (in HTML)."
       - name: accepted_answer_id
         description: "Foreign key. The ID of the answer post that was accepted by the question owner."
+      - name: has_accepted_answer
+        description: "Boolean flag indicating whether the question has an accepted answer."
+        tests:
+          - not_null
       - name: answer_count
         description: "The number of answers this question has received."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
       - name: comment_count
         description: "The number of comments this question has received."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
       - name: creation_date
         description: "The timestamp when the question was asked."
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: "'2008-01-01'"
       - name: favorite_count
         description: "The number of times this question has been favorited by users."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
       - name: last_activity_date
         description: "The timestamp of the last activity on this question (e.g., new answers, edits)."
       - name: last_edit_date
         description: "The timestamp of the last edit made to this question."
+      - name: has_been_edited
+        description: "Boolean flag indicating whether this question post has ever been edited."
+        tests:
+          - not_null
       - name: owner_user_id
         description: "Foreign key. The user ID of the question's creator."
         tests:
@@ -40,7 +74,35 @@ models:
                 severity: warn
       - name: score
         description: "The net vote score of the question (upvotes minus downvotes)."
+        tests:
+          - not_null
       - name: tags
         description: "A pipe-delimited string of tags associated with the question (e.g., '|python|pandas|')."
+        tests:
+          - not_null
+      - name: tag_count
+        description: "Number of tags associated with the question post."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 1
+      - name: body_length
+        description: "Character length of the question body HTML."
+
+      - name: title_length
+        description: "Character length of the question title."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 1
       - name: view_count
         description: "The number of times the question has been viewed."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+
+

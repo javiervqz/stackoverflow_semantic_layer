@@ -12,9 +12,17 @@ models:
       - name: tag_name
         description: "The text name of the tag."
         tests:
+          - unique
           - not_null
       - name: tag_volume
         description: "Total lifetime volume of questions using this tag."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+
+
 
 semantic_models:
   - name: dim_tags

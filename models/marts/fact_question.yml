@@ -3,6 +3,10 @@ version: 2
 models:
   - name: fact_question
     description: "Fact table containing measurable, additive and non-additive metrics for each Stack Overflow question."
+    tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('dim_question')
     columns:
       - name: question_id
         description: "Foreign key linking to dim_question."
@@ -17,18 +21,44 @@ models:
         description: "Timestamp when the question was asked."
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: "'2008-01-01'"
       - name: accepted_answer_id
         description: "Foreign key linking to the accepted answer post."
       - name: score
         description: "Net vote score of the question."
+        tests:
+          - not_null
       - name: view_count
         description: "Number of views the question has received."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
       - name: answer_count
         description: "Number of answers submitted for the question."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
       - name: comment_count
         description: "Number of comments left on the question."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
       - name: favorite_count
         description: "Number of times the question was favorited."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+
+
 
 semantic_models:
   - name: fact_question

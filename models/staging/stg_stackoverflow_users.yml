@@ -13,8 +13,18 @@ models:
         description: "The name displayed on the user's profile."
       - name: reputation
         description: "The user's current reputation score."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 1
       - name: creation_date
         description: "The timestamp when the user registered."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: "'2008-01-01'"
       - name: last_access_date
         description: "The timestamp of the user's most recent activity on the site."
       - name: location
@@ -23,7 +33,24 @@ models:
         description: "The HTML-formatted biography written by the user."
       - name: profile_views
         description: "The number of times the user's profile has been viewed."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
       - name: up_votes
         description: "The total number of upvotes cast by the user."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
       - name: down_votes
         description: "The total number of downvotes cast by the user."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+
+

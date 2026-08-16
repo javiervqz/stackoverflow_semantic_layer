@@ -3,6 +3,21 @@ version: 2
 models:
   - name: fact_tag_daily
     description: "Periodic aggregate fact table summarizing Stack Overflow question metrics at the (tag_name, daily) grain."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - tag_name
+              - date_day
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "questions_with_accepted_answer <= total_questions"
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "questions_with_answers <= total_questions"
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "total_answers >= questions_with_answers"
     columns:
       - name: tag_daily_id
         description: "Primary key. Surrogate key generated from tag_name and date_day."
@@ -19,22 +34,63 @@ models:
         description: "The calendar date of question creation."
         tests:
           - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: "'2008-01-01'"
       - name: total_questions
         description: "Count of questions asked for this tag on this day."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 1
       - name: total_answers
         description: "Count of answers received for questions asked on this day."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
       - name: questions_with_accepted_answer
         description: "Count of questions with an accepted answer."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
       - name: questions_with_answers
         description: "Count of questions that received at least one answer."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
       - name: total_views
         description: "Total views on questions for this tag on this day."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
       - name: total_comments
         description: "Total comments on questions for this tag on this day."
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
       - name: total_score
         description: "Total score of questions for this tag on this day."
+        tests:
+          - not_null
       - name: total_favorites
         description: "Total favorites on questions for this tag on this day."
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              arguments:
+                min_value: 0
+
+
 
 semantic_models:
   - name: fact_tag_daily
