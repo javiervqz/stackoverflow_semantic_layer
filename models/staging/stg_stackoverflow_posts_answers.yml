@@ -4,7 +4,7 @@ models:
   - name: stg_stackoverflow_posts_answers
     description: "Staged Stack Overflow answer posts. Relabeled columns and selected key attributes."
     columns:
-      - name: post_id
+      - name: answer_id
         description: "Primary key. Unique identifier of the answer."
         tests:
           - unique
@@ -27,7 +27,7 @@ models:
           - relationships:
               arguments:
                 to: ref('stg_stackoverflow_posts_questions')
-                field: answer_id
+                field: question_id
               config:
                 severity: warn
       - name: score

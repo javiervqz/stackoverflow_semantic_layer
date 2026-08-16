@@ -4,14 +4,14 @@ models:
   - name: int_question_tags
     description: "Intermediate model containing one row per tag for each Stack Overflow question. Splitted from the pipe-delimited tags string in the staging questions model."
     columns:
-      - name: question_id
-        description: "Foreign key linking back to the question post."
+      - name: tags_group_id
+        description: "Foreign key linking back to the question post tags group."
         tests:
           - not_null
           - relationships:
               arguments:
                 to: ref('stg_stackoverflow_posts_questions')
-                field: question_id
+                field: tags_group_id
       - name: tag_id
         description: "Foreign key linking to the tag metadata."
         tests:
@@ -22,5 +22,9 @@ models:
                 field: tag_id
       - name: tag
         description: "Individual tag associated with the question post."
+        tests:
+          - not_null
+      - name: created_date
+        description: "The timestamp of the latest question created in this tag group."
         tests:
           - not_null

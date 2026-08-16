@@ -11,6 +11,7 @@ renamed as (
         title,
         body,
         accepted_answer_id,
+        if(accepted_answer_id is null, false, true) as has_accepted_answer,
         answer_count,
         comment_count,
         creation_date,

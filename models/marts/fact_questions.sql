@@ -15,6 +15,7 @@ renamed as (
 
         --attributes
         title,
+        has_accepted_answer,
         --timestamp
         creation_date,
         favorite_count,
