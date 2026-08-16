@@ -9,7 +9,7 @@ renamed as (
     select
         id as tag_id,
         tag_name,
-        count as tag_count,
+        count as questions_count,
         excerpt_post_id,
         wiki_post_id
 

@@ -11,7 +11,7 @@ models:
           - not_null
       - name: tag_name
         description: "The text name of the tag (e.g., 'python', 'javascript', 'dbt')."
-      - name: tag_count
+      - name: questions_count
         description: "The total number of questions that use this tag."
       - name: excerpt_post_id
         description: "Foreign key. The ID of the post containing the excerpt (short description) for the tag."
