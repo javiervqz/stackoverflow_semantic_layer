@@ -5,6 +5,8 @@ with questions as (
 final as (
     select
         question_id,
+        creation_date,
+        accepted_answer_id,
         score,
         view_count,
         answer_count,

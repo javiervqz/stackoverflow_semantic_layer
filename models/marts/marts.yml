@@ -1,6 +1,18 @@
 version: 2
 
 models:
+  - name: metricflow_time_spine
+    description: "Daily time spine table for MetricFlow time calculations."
+    time_spine:
+      standard_granularity_column: date_day
+    columns:
+      - name: date_day
+        description: "The date value."
+        granularity: day
+        tests:
+          - unique
+          - not_null
+
   - name: dim_question
     description: "Conformed dimension for Stack Overflow question posts, containing descriptive attributes, metadata, and foreign keys."
     columns:
@@ -19,6 +31,12 @@ models:
         description: "Boolean indicating whether the question post has been edited."
       - name: tag_count
         description: "Number of tags associated with the question."
+      - name: tags_group
+        description: "Pipe-delimited string of all tags associated with the question post."
+      - name: tag_combination
+        description: "Alias for tags_group representing the question's tag combination."
+      - name: tag_combination_volume
+        description: "Total count of questions sharing this exact tag combination."
       - name: has_accepted_answer
         description: "Boolean indicating whether the question has an accepted answer."
       - name: creation_date
@@ -48,6 +66,12 @@ models:
               arguments:
                 to: ref('dim_question')
                 field: question_id
+      - name: creation_date
+        description: "Timestamp when the question was asked."
+        tests:
+          - not_null
+      - name: accepted_answer_id
+        description: "Foreign key linking to the accepted answer post."
       - name: score
         description: "Net vote score of the question."
       - name: view_count
@@ -76,6 +100,8 @@ models:
         description: "The name of the individual tag associated with the question."
         tests:
           - not_null
+      - name: tag_lifetime_questions
+        description: "Total lifetime count of questions with this tag from tag metadata."
 
   - name: dim_tags
     description: "Dimension table containing tag metadata."

@@ -19,19 +19,15 @@ clean-targets:
   - "dbt_packages"
 
 # Model configurations
-# By default, models under staging/ are materialized as views.
 models:
   stackoverflow_dbt:
-    # Staging models: Lightweight cleaning and renaming. Should always be materialized as views.
     staging:
       +materialized: view
       +schema: staging
     
-    intermediate:
+    marts:
       +materialized: table
-      +schema: intermediate
+      +schema: marts
 
 vars:
   incremental_lookback_days: -3
-
-
