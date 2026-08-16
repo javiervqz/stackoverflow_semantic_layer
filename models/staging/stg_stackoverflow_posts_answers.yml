@@ -1,0 +1,34 @@
+version: 2
+
+models:
+  - name: stg_stackoverflow_posts_answers
+    description: "Staged Stack Overflow answer posts. Relabeled columns and selected key attributes."
+    columns:
+      - name: post_id
+        description: "Primary key. Unique identifier of the answer."
+        tests:
+          - unique
+          - not_null
+      - name: body
+        description: "The body content of the answer (in HTML)."
+      - name: comment_count
+        description: "The number of comments this answer has received."
+      - name: creation_date
+        description: "The timestamp when the answer was created."
+      - name: last_activity_date
+        description: "The timestamp of the last activity on the answer."
+      - name: last_edit_date
+        description: "The timestamp of the last edit made to the answer."
+      - name: owner_user_id
+        description: "Foreign key. The user ID of the answer's creator."
+      - name: question_id
+        description: "Foreign key. The ID of the question post this answer responds to."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('stg_stackoverflow_posts_questions')
+                field: answer_id
+              config:
+                severity: warn
+      - name: score
+        description: "The net vote score of the answer (upvotes minus downvotes)."

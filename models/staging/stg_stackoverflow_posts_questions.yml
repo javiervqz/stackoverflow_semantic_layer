@@ -1,0 +1,46 @@
+version: 2
+
+models:
+  - name: stg_stackoverflow_posts_questions
+    description: "Staged Stack Overflow question posts. Relabeled columns and selected key attributes."
+    columns:
+      - name: question_id
+        description: "Primary key. Unique identifier of the question."
+        tests:
+          - unique
+          - not_null
+      - name: title
+        description: "The title of the question."
+      - name: body
+        description: "The body content of the question (in HTML)."
+      - name: accepted_answer_id
+        description: "Foreign key. The ID of the answer post that was accepted by the question owner."
+      - name: answer_count
+        description: "The number of answers this question has received."
+      - name: comment_count
+        description: "The number of comments this question has received."
+      - name: creation_date
+        description: "The timestamp when the question was asked."
+        tests:
+          - not_null
+      - name: favorite_count
+        description: "The number of times this question has been favorited by users."
+      - name: last_activity_date
+        description: "The timestamp of the last activity on this question (e.g., new answers, edits)."
+      - name: last_edit_date
+        description: "The timestamp of the last edit made to this question."
+      - name: owner_user_id
+        description: "Foreign key. The user ID of the question's creator."
+        tests:
+          - relationships:
+              arguments:
+                to: ref('stg_stackoverflow_users')
+                field: user_id
+              config:
+                severity: warn
+      - name: score
+        description: "The net vote score of the question (upvotes minus downvotes)."
+      - name: tags
+        description: "A pipe-delimited string of tags associated with the question (e.g., '|python|pandas|')."
+      - name: view_count
+        description: "The number of times the question has been viewed."

@@ -1,0 +1,20 @@
+# Python virtual environment
+.venv/
+__pycache__/
+*.pyc
+
+# dbt build artifacts
+target/
+dbt_packages/
+logs/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+.DS_Store
+
+# dbt user config
+.user.yml
+
+dbt_internal_packages/

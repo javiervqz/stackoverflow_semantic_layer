@@ -1,0 +1,29 @@
+version: 2
+
+models:
+  - name: stg_stackoverflow_users
+    description: "Staged Stack Overflow user data. Relabeled columns and selected key attributes."
+    columns:
+      - name: user_id
+        description: "Primary key. Unique identifier of the user."
+        tests:
+          - unique
+          - not_null
+      - name: display_name
+        description: "The name displayed on the user's profile."
+      - name: reputation
+        description: "The user's current reputation score."
+      - name: creation_date
+        description: "The timestamp when the user registered."
+      - name: last_access_date
+        description: "The timestamp of the user's most recent activity on the site."
+      - name: location
+        description: "The self-declared location of the user."
+      - name: about_me
+        description: "The HTML-formatted biography written by the user."
+      - name: profile_views
+        description: "The number of times the user's profile has been viewed."
+      - name: up_votes
+        description: "The total number of upvotes cast by the user."
+      - name: down_votes
+        description: "The total number of downvotes cast by the user."

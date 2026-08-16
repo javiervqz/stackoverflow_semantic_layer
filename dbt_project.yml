@@ -1,0 +1,33 @@
+name: 'stackoverflow_dbt'
+version: '1.0.0'
+config-version: 2
+
+# This setting points dbt to the profile defined in profiles.yml
+profile: 'stackoverflow_dbt'
+
+# Directory configuration
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+# Files to remove on `dbt clean`
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Model configurations
+# By default, models under staging/ are materialized as views.
+models:
+  stackoverflow_dbt:
+    # Staging models: Lightweight cleaning and renaming. Should always be materialized as views.
+    staging:
+      +materialized: view
+      +schema: staging
+    
+    intermediate:
+      +materialized: table
+      +schema: intermediate
+

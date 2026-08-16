@@ -1,0 +1,80 @@
+version: 2
+
+sources:
+  - name: stackoverflow
+    description: "Public Stack Overflow dataset hosted in Google BigQuery. Contains data about questions, answers, users, comments, badges, and votes."
+    database: bigquery-public-data
+    schema: stackoverflow
+    tables:
+      - name: users
+        description: "Stack Overflow users, their creation date, reputation, location, etc."
+        columns:
+          - name: id
+            description: "Unique identifier for the user"
+            tests:
+              - unique
+              - not_null
+
+      - name: posts_questions
+        description: "Questions asked on Stack Overflow"
+        columns:
+          - name: id
+            description: "Unique identifier for the question post"
+            tests:
+              - unique
+              - not_null
+
+      - name: posts_answers
+        description: "Answers provided for Stack Overflow questions"
+        columns:
+          - name: id
+            description: "Unique identifier for the answer post"
+            tests:
+              - unique
+              - not_null
+          - name: parent_id
+            description: "The id of the question post this answer belongs to"
+
+      - name: comments
+        description: "Comments left on posts"
+        columns:
+          - name: id
+            description: "Unique identifier for the comment"
+            tests:
+              - unique
+              - not_null
+
+      - name: badges
+        description: "Badges awarded to users"
+        columns:
+          - name: id
+            description: "Unique identifier for the badge award"
+            tests:
+              - unique
+              - not_null
+
+      - name: votes
+        description: "Votes cast on posts"
+        columns:
+          - name: id
+            description: "Unique identifier for the vote"
+            tests:
+              - unique
+              - not_null
+
+      - name: tags
+        description: "Tags associated with questions to categorize posts"
+        columns:
+          - name: id
+            description: "Unique identifier for the tag"
+            tests:
+              - unique
+              - not_null
+          - name: tag_name
+            description: "The text name of the tag"
+          - name: count
+            description: "The number of questions that use this tag"
+          - name: excerpt_post_id
+            description: "The ID of the post containing the excerpt (short description) for the tag"
+          - name: wiki_post_id
+            description: "The ID of the post containing the wiki (full description) for the tag"
