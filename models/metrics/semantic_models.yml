@@ -95,7 +95,7 @@ semantic_models:
     entities:
       - name: question_tag
         type: primary
-        expr: concat(cast(question_id as string), '-', coalesce(cast(tag_id as string), tag_name))
+        expr: question_tag_id
       - name: question
         type: foreign
         expr: question_id
@@ -126,15 +126,3 @@ semantic_models:
         description: "Total accepted answers on questions tagged with this tag."
         agg: sum
         expr: case when accepted_answer_id is not null then 1 else 0 end
-
-  - name: dim_tags
-    description: "Semantic model for tag metadata dimension."
-    model: ref('dim_tags')
-    entities:
-      - name: tag
-        type: primary
-        expr: tag_id
-    dimensions:
-      - name: tag_metadata_name
-        type: categorical
-        expr: tag_name

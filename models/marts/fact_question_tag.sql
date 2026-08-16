@@ -1,5 +1,19 @@
+{{
+    config(
+        materialized='view',
+        incremental_strategy='merge',
+        unique_key='question_tag_id'
+    )
+}}
+
 with questions as (
     select * from {{ ref('stg_stackoverflow_posts_questions') }}
+    {% if is_incremental() %}
+    where creation_date >= (
+        select timestamp_add(max(creation_date), interval {{ var('incremental_lookback_days') }} day)
+        from {{ this }}
+    )
+    {% endif %}
 ),
 
 tags as (
@@ -32,12 +46,13 @@ sorted_tags as (
 
 final as (
     select
+        {{ dbt_utils.generate_surrogate_key(['s.question_id', 's.tag_name']) }} as question_tag_id,
         s.question_id,
         t.tag_id,
         t.tag_count as tag_lifetime_questions,
         s.tag_name,
         s.creation_date,
-        s.tag_count,
+        s.tag_count
     from sorted_tags s
     left join tags t on s.tag_name = t.tag_name
 )

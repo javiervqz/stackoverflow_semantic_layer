@@ -86,6 +86,11 @@ models:
   - name: fact_question_tag
     description: "Factless fact / bridge table linking each question to its individual tags."
     columns:
+      - name: question_tag_id
+        description: "Primary key. Surrogate key generated from question_id and tag_name."
+        tests:
+          - unique
+          - not_null
       - name: question_id
         description: "Foreign key linking to dim_question."
         tests:
@@ -102,6 +107,12 @@ models:
           - not_null
       - name: tag_lifetime_questions
         description: "Total lifetime count of questions with this tag from tag metadata."
+      - name: creation_date
+        description: "Timestamp when the question was asked."
+        tests:
+          - not_null
+      - name: tag_count
+        description: "Number of tags associated with the question."
 
   - name: dim_tags
     description: "Dimension table containing tag metadata."
