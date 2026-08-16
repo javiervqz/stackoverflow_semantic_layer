@@ -1,37 +1,50 @@
+{{
+    config(
+        materialized='view',
+        incremental_strategy='merge',
+        unique_key='question_id'
+    )
+}}
+
 with questions as (
     select * from {{ ref('stg_stackoverflow_posts_questions') }}
+    {% if is_incremental() %}
+    where creation_date >= (
+        select timestamp_add(max(creation_date), interval {{ var('incremental_lookback_days') }} day)
+        from {{ this }}
+    )
+    or last_edit_date >= (
+        select timestamp_add(max(last_edit_date), interval {{ var('incremental_lookback_days') }} day)
+        from {{ this }}
+    )
+    {% endif %}
 ),
 
 canonical_tags as (
-    select
-        q.*,
-        (
-            select array_to_string(array_agg(tag order by tag), '|')
-            from unnest(split(q.tags, '|')) as tag
-            where tag != ''
-        ) as canonical_tags_group
-    from questions q
+    select * from {{ ref('int_canonical_tags') }}
 ),
 
 final as (
     select
-        question_id,
-        title,
-        body_length,
-        title_length,
-        has_been_edited,
-        tag_count,
-        canonical_tags_group as tags_group,
-        canonical_tags_group as tag_combination,
-        {{ dbt_utils.generate_surrogate_key(['canonical_tags_group']) }} as tags_group_id,
-        count(*) over (partition by canonical_tags_group) as tag_combination_volume,
-        has_accepted_answer,
-        creation_date,
-        last_activity_date,
-        last_edit_date,
-        owner_user_id,
-        accepted_answer_id
-    from canonical_tags
+        questions.question_id,
+        questions.title,
+        questions.body_length,
+        questions.title_length,
+        questions.has_been_edited,
+        questions.tag_count,
+        canonical_tags.tags_group,
+        canonical_tags.tag_combination,
+        canonical_tags.tags_group_id,
+        count(*) over (partition by canonical_tags.tags_group) as tag_combination_volume,
+        questions.has_accepted_answer,
+        questions.creation_date,
+        questions.last_activity_date,
+        questions.last_edit_date,
+        questions.owner_user_id,
+        questions.accepted_answer_id
+    from questions
+    left join canonical_tags
+        on questions.tags = canonical_tags.raw_tags
 )
 
 select * from final

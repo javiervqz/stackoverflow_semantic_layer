@@ -1,7 +1,6 @@
 {# What engagement signals correlate with answer rate and acceptance rate?
 Analyzes comment_count, score, and view_count using decile bucketing.
-Note: these metrics are partially endogenous — posts with more visibility
-naturally attract more answers — so interpret as co-occurring signals
+Note: these metrics are non conclusive because naturally, posts with more visibility attract more answers, so interpret as co-occurring signals
 rather than causal drivers. #}
 
 with bucketed as (

@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: dim_tags
+    description: "Dimension table containing tag metadata."
+    columns:
+      - name: tag_id
+        description: "Primary key. Unique identifier of the tag."
+        tests:
+          - unique
+          - not_null
+      - name: tag_name
+        description: "The text name of the tag."
+        tests:
+          - not_null
+      - name: tag_count
+        description: "Total number of questions using this tag."
