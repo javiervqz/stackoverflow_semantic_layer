@@ -1,5 +1,5 @@
 # Stack Overflow Analytics Engineering & Semantic Layer
-### Newsela Senior Analytics Engineering Take-Home Challenge
+
 
 This repository contains the enterprise **dbt** transformation pipeline, **MetricFlow Semantic Layer**, and dimensional data warehouse built on the Google Cloud BigQuery Stack Overflow public dataset (modeling over **23 million questions, answers, tags, and user interactions**).
 
